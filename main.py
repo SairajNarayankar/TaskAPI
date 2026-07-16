@@ -144,3 +144,31 @@ def delete_task(task_id: int):
             tasks.pop(i)
             return Response(status_code=204)
     raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+
+# Add these route handlers
+
+@app.get("/tasks/filter/status", tags=["Tasks"], summary="Filter tasks by done status")
+def filter_tasks(done: bool):
+    """Filter tasks by done status: /tasks/filter/status?done=true"""
+    return [t for t in tasks if t["done"] == done]
+
+
+@app.get("/stats", tags=["Meta"], summary="Task statistics")
+def stats():
+    """Return counts of total, done, and open tasks."""
+    total = len(tasks)
+    done = sum(1 for t in tasks if t["done"])
+    return {"total": total, "done": done, "open": total - done}
+
+
+@app.post("/reset", tags=["Meta"], summary="Reset to seed data")
+def reset():
+    """Restore the original 3 example tasks. Useful for demos."""
+    global tasks
+    tasks = [
+        {"id": 1, "title": "Learn FastAPI", "done": True},
+        {"id": 2, "title": "Build CRUD API", "done": False},
+        {"id": 3, "title": "Push to GitHub", "done": False},
+    ]
+    return {"message": "Reset complete", "count": len(tasks)}
+
