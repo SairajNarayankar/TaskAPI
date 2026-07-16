@@ -80,3 +80,67 @@ def delete_task(task_id: int):
             tasks.pop(i)
             return Response(status_code=204)
     raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+
+@app.get("/", tags=["Meta"], summary="API info")
+def root():
+    """Return API metadata and available endpoints."""
+    return {
+        "name": "Task API",
+        "version": "1.0",
+        "endpoints": ["/tasks", "/tasks/{id}", "/health"]
+    }
+
+
+@app.get("/health", tags=["Meta"], summary="Liveness check")
+def health():
+    """Return {'status': 'ok'} if the server is alive. Used by monitoring."""
+    return {"status": "ok"}
+
+
+@app.get("/tasks", tags=["Tasks"], summary="List all tasks")
+def list_tasks():
+    """Return the full list of tasks."""
+    return tasks
+
+
+@app.get("/tasks/{task_id}", tags=["Tasks"], summary="Get one task by id")
+def get_task(task_id: int):
+    """Return one task. Returns 404 if the id doesn't exist."""
+    for task in tasks:
+        if task["id"] == task_id:
+            return task
+    raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+
+
+@app.post("/tasks", status_code=201, tags=["Tasks"], summary="Create a new task")
+def create_task(payload: TaskCreate):
+    """Create a new task. Auto-assigns id and sets done=false."""
+    next_id = max((t["id"] for t in tasks), default=0) + 1
+    new_task = {"id": next_id, "title": payload.title, "done": False}
+    tasks.append(new_task)
+    return new_task
+
+
+@app.put("/tasks/{task_id}", tags=["Tasks"], summary="Update a task")
+def update_task(task_id: int, payload: TaskUpdate):
+    """Update a task's title and/or done status. 404 if id missing."""
+    if payload.title is None and payload.done is None:
+        raise HTTPException(status_code=400, detail="Body must include 'title' and/or 'done'")
+    for task in tasks:
+        if task["id"] == task_id:
+            if payload.title is not None:
+                task["title"] = payload.title
+            if payload.done is not None:
+                task["done"] = payload.done
+            return task
+    raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+
+
+@app.delete("/tasks/{task_id}", status_code=204, tags=["Tasks"], summary="Delete a task")
+def delete_task(task_id: int):
+    """Delete a task by id. Returns 204 on success, 404 if not found."""
+    for i, task in enumerate(tasks):
+        if task["id"] == task_id:
+            tasks.pop(i)
+            return Response(status_code=204)
+    raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
