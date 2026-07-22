@@ -161,6 +161,46 @@ Stage 5: database documentation and clean-clone verification
 
 ---
 
+## 🤖 AI vs Me — Stage 6 Rematch
+
+I built Stages 0–5 by hand. Then I hired Claude to do the same migration from a written spec.
+
+The AI's code is quarantined in [`ai-version/`](./ai-version/). My hand-built version stays untouched.
+
+### My prompt
+
+```
+[paste your actual prompt here]
+```
+
+### What the AI did better
+
+- **[Example]** Used a `with sqlite3.connect(...)` context manager instead of my manual `try/finally close()` — cleaner Python, harder to leak connections.
+- **[Example]** Created an index on `done` for the filter query I hadn't optimized.
+
+Both improvements I understand and could apply to my code in ~10 minutes.
+
+### What the AI got wrong or silently ignored
+
+- **[Example]** The seed function ran INSERT unconditionally — restarting the server 3 times produced 9 seed tasks instead of 3. Missed the "count first, seed only if empty" rule from my prompt.
+- **[Example]** DELETE returned 200 with `{"deleted": true}` instead of 204 with empty body.
+- **[Example]** Skipped parameterization on ONE query (`f"SELECT ... {id}"`) — a real SQL injection hole.
+
+### What my prompt forgot to specify
+
+- **[Example]** Didn't say "database file path relative to the module" — AI put `tasks.db` in the current working directory, which broke when run from a different folder.
+- **[Example]** Didn't specify what `PUT` should do if only `done` is sent (should title be preserved?) — AI overwrote title with `NULL`.
+
+### One rematch
+
+Added to the prompt: *"Seed function must count rows and only insert if count = 0"* and *"PUT partial updates: preserve fields not sent in the body."*
+
+Regenerated → seed multiplication fixed. Partial update fixed. Still no index, still returned 200 on DELETE — those weren't in the spec, so on the AI it went.
+
+### The lesson
+
+The AI's output is exactly as good as my spec. I could only catch the seed-multiplication bug because I'd already hit it once (Stage 0) and knew to look for it. **Spec + review is my job. Generation is the AI's job.** Both halves are the whole loop.
+
 ## 👤 Author
 
 **Sairaj Narayankar** — FlyRank AI Internship, Backend Track, W3·A2
