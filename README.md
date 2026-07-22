@@ -170,7 +170,25 @@ The AI's code is quarantined in [`ai-version/`](./ai-version/). My hand-built ve
 ### My prompt
 
 ```
-[paste your actual prompt here]
+Migrate a FastAPI in-memory CRUD task API to SQLite.
+
+Requirements:
+- Python 3.11, FastAPI, using the built-in sqlite3 module
+- Database file: tasks.db, created automatically on first run
+- Table 'tasks' with columns: id (INTEGER PRIMARY KEY AUTOINCREMENT), 
+  title (TEXT NOT NULL), done (INTEGER 0/1)
+- On startup: CREATE TABLE IF NOT EXISTS, then seed 3 example tasks 
+  ONLY IF the table is currently empty (count rows first)
+- 5 endpoints keep identical behavior from the in-memory version:
+  - GET /tasks → list all
+  - GET /tasks/{id} → single or 404
+  - POST /tasks → 201 with new task, 400/422 if title empty
+  - PUT /tasks/{id} → update, 200 or 404 (400 if body empty)
+  - DELETE /tasks/{id} → 204 or 404
+- ALL SQL uses parameterized queries (? placeholders)
+- Never glue user input into SQL strings
+- API response body: done should be true/false (Python bool), not 0/1
+- Keep in a single main.py or split into main.py + database.py (your choice)
 ```
 
 ### What the AI did better
