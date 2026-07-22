@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Response
+import database  # runs init_db() automatically
 from pydantic import BaseModel, Field
 from typing import Optional
 
