@@ -204,4 +204,4 @@ The AI's output is exactly as good as my spec. I could only catch the seed-multi
 ## 👤 Author
 
 **Sairaj Narayankar** — FlyRank AI Internship, Backend Track, W3·A2
-📧 alexesriri@gmail.com · 🐙 [GitHub](https://github.com/SairajNarayanakar)
+📧 alexesriri@gmail.com · 🐙 [GitHub](https://github.com/SairajNarayankar)
