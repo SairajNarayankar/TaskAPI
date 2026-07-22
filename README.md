@@ -124,6 +124,7 @@ Opening `tasks.db` in [DB Browser for SQLite](https://sqlitebrowser.org/) shows 
 
 <img width="1919" height="1079" alt="db-browser png" src="https://gist.github.com/user-attachments/assets/65ad2857-8cc9-4462-a802-63652ce16afe" />
 
+
 ### Example query I ran by hand
 
 ```sql
