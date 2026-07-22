@@ -65,3 +65,24 @@ def get_task(task_id: int):
         return row_to_dict(row)
     finally:
         conn.close()
+
+@app.post("/tasks", status_code=201)
+def create_task(payload: TaskCreate):
+    """Insert a new task. Returns 201 with the created task (including its new id)."""
+    conn = database.get_connection()
+    try:
+        cursor = conn.execute(
+            "INSERT INTO tasks (title, done) VALUES (?, ?)",
+            (payload.title, 0)  # done starts as 0 (false)
+        )
+        conn.commit()
+        new_id = cursor.lastrowid  # SQLite returns the auto-assigned id
+
+        # Fetch the row we just inserted, to return the full object
+        row = conn.execute(
+            "SELECT * FROM tasks WHERE id = ?",
+            (new_id,)
+        ).fetchone()
+        return row_to_dict(row)
+    finally:
+        conn.close()
